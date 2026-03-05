@@ -41,10 +41,47 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .app-header h1 {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+/* Environment Selector */
+.env-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.env-dropdown {
+  padding: 4px 8px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.env-dropdown:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.env-badge {
+  padding: 2px 8px;
+  background-color: var(--success-color);
+  color: white;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .send-button {

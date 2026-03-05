@@ -2,10 +2,11 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { ApiRequest, ApiResponse } from '../types';
+import { environmentManager } from './environmentManager';
 
 export class NemuiPanel {
     public static current: NemuiPanel | undefined;
-    private readonly panel: vscode.WebviewPanel;
+    public readonly panel: vscode.WebviewPanel;
     private context: vscode.ExtensionContext;
     private currentRequest: ApiRequest | undefined;
 
@@ -40,6 +41,21 @@ export class NemuiPanel {
         });
 
         NemuiPanel.current = this;
+
+        // Send initial environment data
+        this.sendEnvironmentData();
+    }
+
+    private sendEnvironmentData() {
+        this.panel.webview.postMessage({
+            type: 'environments',
+            payload: environmentManager.getEnvironments()
+        });
+        
+        this.panel.webview.postMessage({
+            type: 'activeEnvironment',
+            payload: environmentManager.getActiveEnvironmentId()
+        });
     }
 
     public static createOrShow(context: vscode.ExtensionContext, request?: ApiRequest): NemuiPanel {
@@ -100,6 +116,13 @@ export class NemuiPanel {
                     }
                 });
                 break;
+            case 'getEnvironments':
+                this.sendEnvironmentData();
+                break;
+            case 'setActiveEnvironment':
+                environmentManager.setActiveEnvironment(message.payload as string | null);
+                this.sendEnvironmentData();
+                break;
         }
     }
 
@@ -109,40 +132,52 @@ export class NemuiPanel {
         }
     }
 
+    private resolveVariables(text: string): string {
+        return environmentManager.resolveVariables(text);
+    }
+
     private async sendHttpRequest(request: ApiRequest): Promise<void> {
         const startTime = Date.now();
         
         try {
+            // Resolve variables in URL
+            let url = this.resolveVariables(request.url);
+            
             // Build URL with query params
-            let url = request.url;
             const enabledParams = request.queryParams.filter(p => p.enabled && p.key);
-            if (enabledParams.length > 0) {
+            const resolvedParams = enabledParams.map(p => ({
+                ...p,
+                key: this.resolveVariables(p.key),
+                value: this.resolveVariables(p.value)
+            }));
+            
+            if (resolvedParams.length > 0) {
                 const params = new URLSearchParams();
-                enabledParams.forEach(p => params.append(p.key, p.value));
+                resolvedParams.forEach(p => params.append(p.key, p.value));
                 url += (url.includes('?') ? '&' : '?') + params.toString();
             }
 
             // Build headers
             const headers: Record<string, string> = {};
             request.headers.filter(h => h.enabled && h.key).forEach(h => {
-                headers[h.key] = h.value;
+                headers[this.resolveVariables(h.key)] = this.resolveVariables(h.value);
             });
 
             // Add auth
             if (request.auth) {
                 switch (request.auth.type) {
                     case 'bearer':
-                        headers['Authorization'] = `Bearer ${request.auth.token}`;
+                        headers['Authorization'] = `Bearer ${this.resolveVariables(request.auth.token || '')}`;
                         break;
                     case 'basic':
                         const credentials = Buffer.from(
-                            `${request.auth.username}:${request.auth.password}`
+                            `${this.resolveVariables(request.auth.username || '')}:${this.resolveVariables(request.auth.password || '')}`
                         ).toString('base64');
                         headers['Authorization'] = `Basic ${credentials}`;
                         break;
                     case 'api-key':
                         if (request.auth.addTo === 'header') {
-                            headers[request.auth.key || 'X-API-Key'] = request.auth.value || '';
+                            headers[request.auth.key || 'X-API-Key'] = this.resolveVariables(request.auth.value || '');
                         }
                         break;
                 }
@@ -151,30 +186,31 @@ export class NemuiPanel {
             // Build body
             let data: unknown = undefined;
             if (['POST', 'PUT', 'PATCH'].includes(request.method) && request.bodyType !== 'none') {
+                const resolvedBody = this.resolveVariables(request.body);
+                
                 switch (request.bodyType) {
                     case 'json':
                         try {
-                            data = JSON.parse(request.body);
+                            data = JSON.parse(resolvedBody);
                             headers['Content-Type'] = 'application/json';
                         } catch {
-                            data = request.body;
+                            data = resolvedBody;
                         }
                         break;
                     case 'form-data':
-                        // Parse form data
-                        data = request.body;
+                        data = resolvedBody;
                         break;
                     case 'graphql':
                         try {
-                            const parsed = JSON.parse(request.body);
+                            const parsed = JSON.parse(resolvedBody);
                             data = parsed;
                             headers['Content-Type'] = 'application/json';
                         } catch {
-                            data = { query: request.body };
+                            data = { query: resolvedBody };
                         }
                         break;
                     default:
-                        data = request.body;
+                        data = resolvedBody;
                 }
             }
 
@@ -183,7 +219,7 @@ export class NemuiPanel {
                 url,
                 headers,
                 data,
-                validateStatus: () => true, // Don't throw on any status
+                validateStatus: () => true,
                 maxRedirects: 0,
                 timeout: vscode.workspace.getConfiguration('nemui').get('timeout', 30000)
             };

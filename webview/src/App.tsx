@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { RequestPanel } from './components/RequestPanel';
 import { ResponsePanel } from './components/ResponsePanel';
-import { useRequestStore } from './stores/requestStore';
+import { useAppStore } from './stores/appStore';
+import './styles/main.css';
 
 declare global {
   interface Window {
@@ -18,11 +19,15 @@ function App() {
     response, 
     isLoading, 
     error,
+    environments,
+    activeEnvironmentId,
     setRequest,
     setResponse,
     setLoading,
-    setError
-  } = useRequestStore();
+    setError,
+    setEnvironments,
+    setActiveEnvironment
+  } = useAppStore();
 
   useEffect(() => {
     // Listen for messages from extension
@@ -41,8 +46,17 @@ function App() {
           setError(message.payload);
           setLoading(false);
           break;
+        case 'environments':
+          setEnvironments(message.payload as any[]);
+          break;
+        case 'activeEnvironment':
+          setActiveEnvironment(message.payload as string | null);
+          break;
       }
     });
+
+    // Request initial environment data
+    window.vscode?.postMessage({ type: 'getEnvironments', payload: null });
   }, []);
 
   const handleSendRequest = () => {
@@ -54,10 +68,41 @@ function App() {
     });
   };
 
+  const handleEnvironmentChange = (envId: string | null) => {
+    window.vscode?.postMessage({
+      type: 'setActiveEnvironment',
+      payload: envId
+    });
+  };
+
+  const activeEnv = environments.find(e => e.id === activeEnvironmentId);
+
   return (
     <div className="app">
       <header className="app-header">
-        <h1>⚡ Nemui API Client</h1>
+        <div className="header-left">
+          <h1>⚡ Nemui API Client</h1>
+          
+          {/* Environment Selector */}
+          <div className="env-selector">
+            <select
+              value={activeEnvironmentId || ''}
+              onChange={(e) => handleEnvironmentChange(e.target.value || null)}
+              className="env-dropdown"
+            >
+              <option value="">No Environment</option>
+              {environments.map(env => (
+                <option key={env.id} value={env.id}>{env.name}</option>
+              ))}
+            </select>
+            {activeEnv && (
+              <span className="env-badge" title={activeEnv.variables.map(v => `${v.key}: ${v.value}`).join('\n')}>
+                {activeEnv.name}
+              </span>
+            )}
+          </div>
+        </div>
+        
         <button 
           className="send-button"
           onClick={handleSendRequest}

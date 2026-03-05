@@ -1,4 +1,4 @@
-import { useRequestStore } from '../stores/requestStore';
+import { useAppStore } from '../stores/appStore';
 
 const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 const METHOD_COLORS: Record<string, string> = {
@@ -12,7 +12,7 @@ const METHOD_COLORS: Record<string, string> = {
 };
 
 export function RequestPanel() {
-  const { request, updateRequest } = useRequestStore();
+  const { request, updateRequest } = useAppStore();
 
   const addHeader = () => {
     updateRequest({
@@ -71,7 +71,7 @@ export function RequestPanel() {
           type="text"
           value={request.url}
           onChange={(e) => updateRequest({ url: e.target.value })}
-          placeholder="Enter request URL"
+          placeholder="Enter request URL (use {{variable}} for env vars)"
           className="url-input"
         />
       </div>
@@ -98,7 +98,7 @@ export function RequestPanel() {
                 type="text"
                 value={param.key}
                 onChange={(e) => updateQueryParam(index, 'key', e.target.value)}
-                placeholder="Key"
+                placeholder="Key (use {{variable}})"
                 className="key-input"
               />
               <input
@@ -136,7 +136,7 @@ export function RequestPanel() {
                 type="text"
                 value={header.value}
                 onChange={(e) => updateHeader(index, 'value', e.target.value)}
-                placeholder="Value"
+                placeholder="Value (use {{variable}})"
                 className="value-input"
               />
               <button onClick={() => removeHeader(index)} className="remove-btn">×</button>
@@ -195,7 +195,7 @@ export function RequestPanel() {
           <textarea
             value={request.body}
             onChange={(e) => updateRequest({ body: e.target.value })}
-            placeholder={request.bodyType === 'json' ? '{\n  "key": "value"\n}' : 'Request body...'}
+            placeholder={request.bodyType === 'json' ? '{\n  "key": "{{variable}}"\n}' : 'Request body...'}
             className="body-editor"
           />
         )}

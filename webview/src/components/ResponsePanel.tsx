@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useRequestStore } from '../stores/requestStore';
+import { useAppStore } from '../stores/appStore';
 
 export function ResponsePanel() {
-  const { response, isLoading } = useRequestStore();
+  const { response, isLoading } = useAppStore();
   const [activeTab, setActiveTab] = useState<'body' | 'headers'>('body');
 
   if (isLoading) {

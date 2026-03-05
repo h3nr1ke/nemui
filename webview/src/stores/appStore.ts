@@ -27,17 +27,27 @@ interface ApiResponse {
   size: number;
 }
 
-interface RequestState {
+interface Environment {
+  id: string;
+  name: string;
+  variables: { key: string; value: string; enabled: boolean }[];
+}
+
+interface AppState {
   request: ApiRequest;
   response: ApiResponse | null;
   isLoading: boolean;
   error: unknown;
+  environments: Environment[];
+  activeEnvironmentId: string | null;
   
   setRequest: (request: ApiRequest) => void;
   setResponse: (response: ApiResponse) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: unknown) => void;
   updateRequest: (updates: Partial<ApiRequest>) => void;
+  setEnvironments: (environments: Environment[]) => void;
+  setActiveEnvironment: (id: string | null) => void;
 }
 
 const defaultRequest: ApiRequest = {
@@ -52,11 +62,13 @@ const defaultRequest: ApiRequest = {
   collectionId: ''
 };
 
-export const useRequestStore = create<RequestState>((set) => ({
+export const useAppStore = create<AppState>((set) => ({
   request: defaultRequest,
   response: null,
   isLoading: false,
   error: null,
+  environments: [],
+  activeEnvironmentId: null,
 
   setRequest: (request) => set({ request }),
   
@@ -68,5 +80,9 @@ export const useRequestStore = create<RequestState>((set) => ({
   
   updateRequest: (updates) => set((state) => ({
     request: { ...state.request, ...updates }
-  }))
+  })),
+
+  setEnvironments: (environments) => set({ environments }),
+  
+  setActiveEnvironment: (activeEnvironmentId) => set({ activeEnvironmentId })
 }));
