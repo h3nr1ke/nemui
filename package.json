@@ -57,6 +57,14 @@
       {
         "command": "nemui.exportPostman",
         "title": "Export to Postman"
+      },
+      {
+        "command": "nemui.importInsomnia",
+        "title": "Import from Insomnia"
+      },
+      {
+        "command": "nemui.importPostman",
+        "title": "Import from Postman"
       }
     ],
     "keybindings": [
