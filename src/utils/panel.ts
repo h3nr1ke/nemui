@@ -56,6 +56,11 @@ export class NemuiPanel {
             type: 'activeEnvironment',
             payload: environmentManager.getActiveEnvironmentId()
         });
+
+        this.panel.webview.postMessage({
+            type: 'runtimeVariables',
+            payload: environmentManager.getRuntimeVariables()
+        });
     }
 
     public static createOrShow(context: vscode.ExtensionContext, request?: ApiRequest): NemuiPanel {
@@ -123,6 +128,25 @@ export class NemuiPanel {
                 environmentManager.setActiveEnvironment(message.payload as string | null);
                 this.sendEnvironmentData();
                 break;
+            case 'setVariable':
+                const { key, value, persistent } = message.payload as { key: string; value: string; persistent?: boolean };
+                environmentManager.setRuntimeVariable(key, value);
+                
+                if (persistent) {
+                    environmentManager.addVariableToEnvironment(key, value);
+                }
+                
+                this.panel.webview.postMessage({
+                    type: 'runtimeVariables',
+                    payload: environmentManager.getRuntimeVariables()
+                });
+                break;
+            case 'getRuntimeVariables':
+                this.panel.webview.postMessage({
+                    type: 'runtimeVariables',
+                    payload: environmentManager.getRuntimeVariables()
+                });
+                break;
         }
     }
 
@@ -136,10 +160,76 @@ export class NemuiPanel {
         return environmentManager.resolveVariables(text);
     }
 
+    private executePreRequestScript(script: string): void {
+        if (!script) return;
+        
+        try {
+            // Create a safe sandbox for the script
+            const context = {
+                variables: environmentManager.getRuntimeVariables(),
+                setVariable: (key: string, value: string) => {
+                    environmentManager.setRuntimeVariable(key, value);
+                }
+            };
+            
+            // Execute the script
+            new Function('variables', 'setVariable', script)(context.variables, context.setVariable);
+        } catch (error) {
+            vscode.window.showWarningMessage(`Pre-request script error: ${error}`);
+        }
+    }
+
+    private executePostResponseScript(script: string, response: ApiResponse): void {
+        if (!script) return;
+        
+        try {
+            const context = {
+                response: {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: response.headers,
+                    data: response.data,
+                    time: response.time,
+                    json: typeof response.data === 'object' ? response.data : JSON.parse(String(response.data))
+                },
+                variables: environmentManager.getRuntimeVariables(),
+                setVariable: (key: string, value: string) => {
+                    environmentManager.setRuntimeVariable(key, value);
+                },
+                setPersistentVariable: (key: string, value: string) => {
+                    environmentManager.setRuntimeVariable(key, value);
+                    environmentManager.addVariableToEnvironment(key, value);
+                }
+            };
+            
+            // Execute the script
+            new Function(
+                'response', 
+                'variables', 
+                'setVariable', 
+                'setPersistentVariable', 
+                script
+            )(context.response, context.variables, context.setVariable, context.setPersistentVariable);
+            
+            // Send updated runtime variables to webview
+            this.panel.webview.postMessage({
+                type: 'runtimeVariables',
+                payload: environmentManager.getRuntimeVariables()
+            });
+        } catch (error) {
+            vscode.window.showWarningMessage(`Post-response script error: ${error}`);
+        }
+    }
+
     private async sendHttpRequest(request: ApiRequest): Promise<void> {
         const startTime = Date.now();
         
         try {
+            // Execute pre-request script
+            if (request.preRequestScript) {
+                this.executePreRequestScript(request.preRequestScript);
+            }
+            
             // Resolve variables in URL
             let url = this.resolveVariables(request.url);
             
@@ -240,6 +330,11 @@ export class NemuiPanel {
                 type: 'response',
                 payload: apiResponse
             });
+
+            // Execute post-response script
+            if (request.postResponseScript) {
+                this.executePostResponseScript(request.postResponseScript, apiResponse);
+            }
 
         } catch (error) {
             const endTime = Date.now();

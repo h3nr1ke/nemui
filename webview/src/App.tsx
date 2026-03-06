@@ -21,13 +21,17 @@ function App() {
     error,
     environments,
     activeEnvironmentId,
+    runtimeVariables,
     setRequest,
     setResponse,
     setLoading,
     setError,
     setEnvironments,
-    setActiveEnvironment
+    setActiveEnvironment,
+    setRuntimeVariables
   } = useAppStore();
+
+  const [showVars, setShowVars] = useState(false);
 
   useEffect(() => {
     // Listen for messages from extension
@@ -51,6 +55,9 @@ function App() {
           break;
         case 'activeEnvironment':
           setActiveEnvironment(message.payload as string | null);
+          break;
+        case 'runtimeVariables':
+          setRuntimeVariables(message.payload as Record<string, string>);
           break;
       }
     });
@@ -101,6 +108,15 @@ function App() {
               </span>
             )}
           </div>
+
+          {/* Runtime Variables Button */}
+          <button 
+            className="vars-toggle"
+            onClick={() => setShowVars(!showVars)}
+            title="View runtime variables"
+          >
+            {Object.keys(runtimeVariables).length > 0 ? `{{${Object.keys(runtimeVariables).length}}}` : '{}'}
+          </button>
         </div>
         
         <button 
@@ -111,6 +127,28 @@ function App() {
           {isLoading ? 'Sending...' : 'Send Request'}
         </button>
       </header>
+
+      {/* Runtime Variables Panel */}
+      {showVars && (
+        <div className="runtime-vars-panel">
+          <div className="vars-header">
+            <h3>Runtime Variables</h3>
+            <button onClick={() => setShowVars(false)}>×</button>
+          </div>
+          <div className="vars-list">
+            {Object.keys(runtimeVariables).length === 0 ? (
+              <p className="vars-empty">No runtime variables. Use setVariable() in scripts.</p>
+            ) : (
+              Object.entries(runtimeVariables).map(([key, value]) => (
+                <div key={key} className="var-item">
+                  <span className="var-key">{key}</span>
+                  <span className="var-value">{value}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
       
       <main className="app-main">
         <RequestPanel />

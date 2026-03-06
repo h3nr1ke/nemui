@@ -7,6 +7,7 @@ export class EnvironmentManager {
     private environments: Environments = {};
     private activeEnvironment: string | null = null;
     private workspacePath: string | undefined;
+    private runtimeVariables: Map<string, string> = new Map();
 
     constructor() {
         this.loadFromStorage();
@@ -98,20 +99,66 @@ export class EnvironmentManager {
         this.saveToStorage();
     }
 
+    // Set a runtime variable (from scripts)
+    setRuntimeVariable(key: string, value: string) {
+        this.runtimeVariables.set(key, value);
+    }
+
+    // Get all runtime variables
+    getRuntimeVariables(): Record<string, string> {
+        const vars: Record<string, string> = {};
+        this.runtimeVariables.forEach((value, key) => {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+    // Clear runtime variables
+    clearRuntimeVariables() {
+        this.runtimeVariables.clear();
+    }
+
+    // Resolve variables in text: first env, then runtime
     resolveVariables(text: string): string {
         const env = this.getActiveEnvironment();
-        if (!env) return text;
-
+        
         let resolved = text;
         
-        // Replace {{variable}} with environment variables
-        const variablePattern = /\{\{([^}]+)\}\}/g;
-        resolved = resolved.replace(variablePattern, (match, varName) => {
-            const variable = env.variables.find(v => v.key === varName && v.enabled);
-            return variable ? variable.value : match;
-        });
+        if (env) {
+            // Replace {{variable}} with environment variables
+            const variablePattern = /\{\{([^}]+)\}\}/g;
+            resolved = resolved.replace(variablePattern, (match, varName) => {
+                // First check environment variables
+                const variable = env.variables.find(v => v.key === varName && v.enabled);
+                if (variable) return variable.value;
+                
+                // Then check runtime variables (from scripts)
+                if (this.runtimeVariables.has(varName)) {
+                    return this.runtimeVariables.get(varName)!;
+                }
+                
+                return match;
+            });
+        }
 
         return resolved;
+    }
+
+    // Add variable to active environment
+    addVariableToEnvironment(key: string, value: string) {
+        if (!this.activeEnvironment || !this.environments[this.activeEnvironment]) return;
+        
+        const env = this.environments[this.activeEnvironment];
+        const existing = env.variables.find(v => v.key === key);
+        
+        if (existing) {
+            existing.value = value;
+            existing.enabled = true;
+        } else {
+            env.variables.push({ key, value, enabled: true });
+        }
+        
+        this.saveToStorage();
     }
 }
 

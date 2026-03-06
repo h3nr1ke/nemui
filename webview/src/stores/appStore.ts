@@ -15,7 +15,12 @@ interface ApiRequest {
     token?: string;
     username?: string;
     password?: string;
+    key?: string;
+    value?: string;
+    addTo?: string;
   };
+  preRequestScript?: string;
+  postResponseScript?: string;
 }
 
 interface ApiResponse {
@@ -40,6 +45,7 @@ interface AppState {
   error: unknown;
   environments: Environment[];
   activeEnvironmentId: string | null;
+  runtimeVariables: Record<string, string>;
   
   setRequest: (request: ApiRequest) => void;
   setResponse: (response: ApiResponse) => void;
@@ -48,6 +54,8 @@ interface AppState {
   updateRequest: (updates: Partial<ApiRequest>) => void;
   setEnvironments: (environments: Environment[]) => void;
   setActiveEnvironment: (id: string | null) => void;
+  setRuntimeVariables: (variables: Record<string, string>) => void;
+  setVariable: (key: string, value: string, persistent?: boolean) => void;
 }
 
 const defaultRequest: ApiRequest = {
@@ -59,16 +67,18 @@ const defaultRequest: ApiRequest = {
   queryParams: [{ key: '', value: '', enabled: true }],
   body: '',
   bodyType: 'none',
-  collectionId: ''
+  collectionId: '',
+  auth: { type: 'none' }
 };
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   request: defaultRequest,
   response: null,
   isLoading: false,
   error: null,
   environments: [],
   activeEnvironmentId: null,
+  runtimeVariables: {},
 
   setRequest: (request) => set({ request }),
   
@@ -84,5 +94,23 @@ export const useAppStore = create<AppState>((set) => ({
 
   setEnvironments: (environments) => set({ environments }),
   
-  setActiveEnvironment: (activeEnvironmentId) => set({ activeEnvironmentId })
+  setActiveEnvironment: (activeEnvironmentId) => set({ activeEnvironmentId }),
+
+  setRuntimeVariables: (runtimeVariables) => set({ runtimeVariables }),
+
+  setVariable: (key, value, persistent = false) => {
+    // Update local state immediately
+    set((state) => ({
+      runtimeVariables: { ...state.runtimeVariables, [key]: value }
+    }));
+    
+    // Send to extension
+    const vscode = (window as any).vscode;
+    if (vscode) {
+      vscode.postMessage({
+        type: 'setVariable',
+        payload: { key, value, persistent }
+      });
+    }
+  }
 }));
