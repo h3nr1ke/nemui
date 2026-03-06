@@ -11,8 +11,8 @@
     "build:electron:mac": "cd packages/electron && npm run build:mac",
     "build:electron:linux": "cd packages/electron && npm run build:linux",
     "dev:vscode": "cd packages/vscode && npm run dev",
-    "build:vscode": "cd packages/vscode && npm run compile",
+    "build:vscode": "cd packages/vscode && npm run compile && cp -r ../standalone/dist/* webview/",
     "package:vscode": "cd packages/vscode && npm run package",
-    "build": "npm run build:standalone"
+    "build": "npm run build:standalone && npm run build:vscode && npm run build:electron"
   }
 }

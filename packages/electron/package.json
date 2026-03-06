@@ -6,19 +6,17 @@
   "author": "Nemui",
   "license": "MIT",
   "scripts": {
-    "dev": "vite build && electron .",
-    "build": "vite build && electron-builder",
-    "build:win": "vite build && electron-builder --win",
-    "build:mac": "vite build && electron-builder --mac",
-    "build:linux": "vite build && electron-builder --linux"
+    "dev": "npm run build:main && electron .",
+    "build": "npm run build:main && electron-builder",
+    "build:main": "tsc main.ts --outDir dist-electron --module CommonJS --target ES2020 --esModuleInterop --skipLibCheck"
   },
   "dependencies": {
-    "@nemui/core": "workspace:*"
+    "electron-squirrel-startup": "^1.0.0"
   },
   "devDependencies": {
     "electron": "^28.1.0",
     "electron-builder": "^24.9.1",
-    "vite": "^5.0.12"
+    "typescript": "^5.3.0"
   },
   "build": {
     "appId": "com.nemui.app",
@@ -27,8 +25,14 @@
       "output": "release"
     },
     "files": [
-      "dist/**/*",
-      "dist-electron/**/*"
+      "dist-electron/**/*",
+      "webview/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../standalone/dist",
+        "to": "webview"
+      }
     ],
     "win": {
       "target": ["nsis"]

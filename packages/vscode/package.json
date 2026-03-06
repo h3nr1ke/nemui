@@ -1,0 +1,71 @@
+{
+  "name": "nemui",
+  "displayName": "Nemui API Client",
+  "description": "A powerful REST & GraphQL API client for VS Code",
+  "version": "1.0.0",
+  "publisher": "nemui",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Web Development"
+  ],
+  "activationEvents": [
+    "onCommand:nemui.openClient",
+    "onView:project-nemui.collections"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nemui-sidebar",
+          "title": "Nemui API",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "nemui-sidebar": [
+        {
+          "id": "project-nemui.collections",
+          "name": "Collections"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "nemui.openClient",
+        "title": "Open Nemui API Client"
+      },
+      {
+        "command": "nemui.import",
+        "title": "Import Collection"
+      },
+      {
+        "command": "nemui.export",
+        "title": "Export Collection"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "dev": "npm run watch",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^2.3.0",
+    "typescript": "^5.3.0",
+    "vsce": "^2.15.0"
+  }
+}
