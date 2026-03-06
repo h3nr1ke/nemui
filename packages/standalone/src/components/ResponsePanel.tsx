@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAppStore } from '@nemui/core';
+import { useAppStore } from '../store';
 
 export function ResponsePanel() {
   const { response, isLoading } = useAppStore();

@@ -1,20 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useAppStore, createHttpClient } from '@nemui/core';
+import { useState } from 'react';
+import { useAppStore, setPlatformApi } from './store';
+import { createHttpClient } from './httpClient';
+import type { ApiRequest } from './types';
 import { RequestPanel } from './components/RequestPanel';
 import { ResponsePanel } from './components/ResponsePanel';
 import { CollectionsPanel } from './components/CollectionsPanel';
 import { EnvironmentsPanel } from './components/EnvironmentsPanel';
 
-// Set platform
-import { setPlatformApi } from '@nemui/core';
-import type { Platform } from '@nemui/core';
-
-const platform: Platform = 'standalone';
 const httpClient = createHttpClient(useAppStore.getState);
 
 setPlatformApi({
-  platform,
-  sendRequest: async (request) => {
+  platform: 'standalone',
+  sendRequest: async (request: ApiRequest) => {
     useAppStore.getState().setLoading(true);
     useAppStore.getState().setError(null);
     
@@ -23,27 +20,26 @@ setPlatformApi({
       useAppStore.getState().setResponse(response);
       useAppStore.getState().setLoading(false);
       
-      // Execute post-response script if exists
       if (request.postResponseScript) {
         executePostResponseScript(request.postResponseScript, response);
       }
       
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       useAppStore.getState().setError(error);
       useAppStore.getState().setLoading(false);
       throw error;
     }
   },
-  showMessage: (message, type = 'info') => {
-    console.log(`[${type}] ${message}`);
+  showMessage: (message: string, _type = 'info') => {
+    console.log(`[${_type}] ${message}`);
   },
   getConfig: async () => {
     return useAppStore.getState().config;
   }
 });
 
-function executePostResponseScript(script: string, response: any) {
+function executePostResponseScript(script: string, response: { status: number; statusText: string; headers: Record<string, string>; data: unknown; time: number; size: number }) {
   try {
     const variables = useAppStore.getState().runtimeVariables;
     
@@ -62,7 +58,6 @@ function executePostResponseScript(script: string, response: any) {
       },
       setPersistentVariable: (key: string, value: string) => {
         useAppStore.getState().setRuntimeVariable(key, value);
-        // Save to environment if active
         const activeEnvId = useAppStore.getState().activeEnvironmentId;
         if (activeEnvId) {
           const envs = useAppStore.getState().environments;
@@ -93,18 +88,14 @@ function executePostResponseScript(script: string, response: any) {
 function App() {
   const { 
     request, 
-    response, 
     isLoading, 
     error,
     environments,
     activeEnvironmentId,
     runtimeVariables,
-    setRequest,
-    setResponse,
-    setLoading,
-    setError,
     setActiveEnvironment,
-    setRuntimeVariables
+    setError,
+    setLoading
   } = useAppStore();
 
   const [showSidebar, setShowSidebar] = useState(true);
@@ -116,12 +107,10 @@ function App() {
     
     try {
       await httpClient(request);
-    } catch (error: any) {
-      useAppStore.getState().setError(error);
+    } catch (err) {
+      useAppStore.getState().setError(err);
     }
   };
-
-  const activeEnv = environments.find(e => e.id === activeEnvironmentId);
 
   return (
     <div className="app">
@@ -132,7 +121,6 @@ function App() {
           </button>
           <h1>⚡ Nemui</h1>
           
-          {/* Environment Selector */}
           <div className="env-selector">
             <select
               value={activeEnvironmentId || ''}
@@ -149,7 +137,6 @@ function App() {
             </button>
           </div>
 
-          {/* Runtime Variables Button */}
           <button 
             className="vars-toggle"
             onClick={() => setShowEnvPanel(!showEnvPanel)}
@@ -168,7 +155,6 @@ function App() {
         </button>
       </header>
 
-      {/* Environments Panel */}
       {showEnvPanel && (
         <EnvironmentsPanel onClose={() => setShowEnvPanel(false)} />
       )}

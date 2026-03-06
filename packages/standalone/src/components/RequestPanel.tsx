@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAppStore } from '@nemui/core';
+import { useAppStore } from '../store';
 
 const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 const METHOD_COLORS: Record<string, string> = {

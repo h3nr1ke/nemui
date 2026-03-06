@@ -1,4 +1,4 @@
-import { useAppStore } from '@nemui/core';
+import { useAppStore } from '../store';
 
 export function CollectionsPanel() {
   const { collections, addCollection, setRequest } = useAppStore();

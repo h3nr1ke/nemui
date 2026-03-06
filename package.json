@@ -2,20 +2,17 @@
   "name": "nemui",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
-    "dev:standalone": "npm run dev -w @nemui/standalone",
-    "build:standalone": "npm run build -w @nemui/standalone",
-    "dev:electron": "npm run dev -w @nemui/electron",
-    "build:electron": "npm run build -w @nemui/electron",
-    "build:electron:win": "npm run build:win -w @nemui/electron",
-    "build:electron:mac": "npm run build:mac -w @nemui/electron",
-    "build:electron:linux": "npm run build:linux -w @nemui/electron",
+    "dev:standalone": "cd packages/standalone && npm run dev",
+    "build:standalone": "cd packages/standalone && npm run build",
+    "dev:electron": "cd packages/electron && npm run dev",
+    "build:electron": "cd packages/electron && npm run build",
+    "build:electron:win": "cd packages/electron && npm run build:win",
+    "build:electron:mac": "cd packages/electron && npm run build:mac",
+    "build:electron:linux": "cd packages/electron && npm run build:linux",
     "dev:vscode": "cd packages/vscode && npm run dev",
     "build:vscode": "cd packages/vscode && npm run compile",
     "package:vscode": "cd packages/vscode && npm run package",
-    "build": "npm run build:standalone && npm run build:electron"
+    "build": "npm run build:standalone"
   }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAppStore } from '@nemui/core';
+import { useAppStore } from '../store';
 
 export function EnvironmentsPanel({ onClose }: { onClose: () => void }) {
   const { environments, addEnvironment, updateEnvironment, deleteEnvironment } = useAppStore();

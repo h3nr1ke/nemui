@@ -1,18 +1,20 @@
 {
-  "name": "@nemui/standalone",
+  "name": "nemui-standalone",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@nemui/core": "workspace:*",
+    "axios": "^1.6.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@types/node": "^18.19.130",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.2.1",
