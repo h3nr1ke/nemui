@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { registerCommands } from './commands';
+import { registerExportCommands } from './commands/exportCommands';
 import { CollectionsTreeProvider } from './providers/collectionsTreeProvider';
 import { NemuiPanel } from './utils/panel';
 
@@ -10,6 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register commands
     registerCommands(context, collectionsProvider);
+    registerExportCommands(context, collectionsProvider);
 
     // Add panel to subscriptions
     context.subscriptions.push(NemuiPanel(context));

@@ -41,6 +41,22 @@
       {
         "command": "nemui.sendRequest",
         "title": "Send Request"
+      },
+      {
+        "command": "nemui.newEnvironment",
+        "title": "New Environment"
+      },
+      {
+        "command": "nemui.switchEnvironment",
+        "title": "Switch Environment"
+      },
+      {
+        "command": "nemui.exportInsomnia",
+        "title": "Export to Insomnia"
+      },
+      {
+        "command": "nemui.exportPostman",
+        "title": "Export to Postman"
       }
     ],
     "keybindings": [
