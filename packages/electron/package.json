@@ -1,0 +1,43 @@
+{
+  "name": "@nemui/electron",
+  "version": "1.0.0",
+  "description": "Nemui API Client - Desktop App",
+  "main": "dist-electron/main.js",
+  "author": "Nemui",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite build && electron .",
+    "build": "vite build && electron-builder",
+    "build:win": "vite build && electron-builder --win",
+    "build:mac": "vite build && electron-builder --mac",
+    "build:linux": "vite build && electron-builder --linux"
+  },
+  "dependencies": {
+    "@nemui/core": "workspace:*"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1",
+    "vite": "^5.0.12"
+  },
+  "build": {
+    "appId": "com.nemui.app",
+    "productName": "Nemui API Client",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "win": {
+      "target": ["nsis"]
+    },
+    "mac": {
+      "target": ["dmg"]
+    },
+    "linux": {
+      "target": ["AppImage"]
+    }
+  }
+}
