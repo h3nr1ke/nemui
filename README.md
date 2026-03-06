@@ -1,86 +1,83 @@
 # Nemui API Client
 
-A REST & GraphQL API client for VSCode - Like Insomnia but inside your editor.
+A powerful REST & GraphQL API client that works both as a VSCode extension and a standalone web application.
 
-## Features
+## Packages
 
-- ✅ REST API requests (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS)
-- ✅ GraphQL support
-- ✅ Headers and Query Parameters
-- ✅ Request Body (JSON, Form Data, Raw, GraphQL)
-- ✅ Response viewer with syntax highlighting
-- ✅ Collections organization in sidebar
-- ✅ Environment variables (coming soon)
-- ✅ Authentication (Bearer, Basic, API Key) (coming soon)
+| Package | Description |
+|---------|-------------|
+| `@nemui/core` | Shared business logic (store, HTTP client, types) |
+| `@nemui/standalone` | Standalone web app |
+| `@nemui/vscode` | VSCode extension |
 
 ## Development
 
-### Prerequisites
-
-- Node.js 18+
-- VSCode 1.85+
-
-### Setup
+### Install Dependencies
 
 ```bash
-# Install root dependencies
 npm install
-
-# Build the webview
-cd webview && npm install && npm run build
-
-# Return to root and compile TypeScript
-cd ..
-npm run compile
 ```
 
-### Running in Development
-
-Press F5 to launch the extension in a new VSCode window.
-
-### Building
+### Standalone App (Web)
 
 ```bash
-npm run package
+# Development
+npm run dev:standalone
+
+# Build
+npm run build:standalone
+
+# Output: packages/standalone/dist/
 ```
 
-This will create a `.vsix` file that can be installed in VSCode.
+### VSCode Extension
 
-## Project Structure
+```bash
+# Development (open in VSCode and press F5)
+npm run dev:vscode
 
-```
-project-nemui/
-├── src/
-│   ├── extension.ts       # Main entry point
-│   ├── commands/         # VSCode commands
-│   ├── providers/        # Tree view providers
-│   ├── utils/            # Panel and helpers
-│   └── types.ts          # TypeScript types
-├── webview/              # React webview
-│   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── stores/       # Zustand stores
-│   │   └── styles/       # CSS styles
-│   └── package.json
-├── package.json
-└── tsconfig.json
+# Build
+npm run build:vscode
+
+# Package (.vsix)
+npm run package:vscode
 ```
 
-## Usage
+## Building Both
 
-1. Open VSCode
-2. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
-3. Type "Open API Client" and select the command
-4. Or click on the "API Collections" in the Explorer sidebar
-5. Enter your API URL, add headers/body as needed
-6. Click "Send Request" or press `Ctrl+Enter`
+```bash
+npm run build
+```
 
-## Keyboard Shortcuts
+This will build both the standalone app and the VSCode extension.
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+Enter` | Send Request |
-| `Cmd+Enter` (Mac) | Send Request |
+## Architecture
+
+```
+nemui/
+├── packages/
+│   ├── core/          # Shared code
+│   │   └── src/
+│   │       ├── types.ts
+│   │       ├── store.ts
+│   │       └── httpClient.ts
+│   ├── standalone/   # Web app
+│   │   └── src/
+│   │       ├── App.tsx
+│   │       └── components/
+│   └── vscode/       # VSCode extension
+│       └── src/
+│           ├── extension.ts
+│           └── commands/
+```
+
+## Features
+
+- REST & GraphQL requests
+- Environments & variables
+- Pre/Post request scripts
+- Import/Export (Insomnia, Postman)
+- Collections organization
 
 ## License
 

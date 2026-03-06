@@ -1,117 +1,16 @@
 {
-  "name": "project-nemui",
-  "displayName": "Nemui API Client",
-  "description": "REST & GraphQL client for VSCode - Like Insomnia but inside your editor",
-  "version": "0.0.1",
-  "publisher": "nemui",
-  "engines": {
-    "vscode": "^1.85.0"
-  },
-  "categories": [
-    "Development",
-    "Other"
+  "name": "nemui",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
-  "activationEvents": [
-    "onView:project-nemui.collections",
-    "onCommand:nemui.openClient"
-  ],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "views": {
-      "explorer": [
-        {
-          "id": "project-nemui.collections",
-          "name": "API Collections"
-        }
-      ]
-    },
-    "commands": [
-      {
-        "command": "nemui.openClient",
-        "title": "Open API Client"
-      },
-      {
-        "command": "nemui.newRequest",
-        "title": "New Request"
-      },
-      {
-        "command": "nemui.newCollection",
-        "title": "New Collection"
-      },
-      {
-        "command": "nemui.sendRequest",
-        "title": "Send Request"
-      },
-      {
-        "command": "nemui.newEnvironment",
-        "title": "New Environment"
-      },
-      {
-        "command": "nemui.switchEnvironment",
-        "title": "Switch Environment"
-      },
-      {
-        "command": "nemui.exportInsomnia",
-        "title": "Export to Insomnia"
-      },
-      {
-        "command": "nemui.exportPostman",
-        "title": "Export to Postman"
-      },
-      {
-        "command": "nemui.importInsomnia",
-        "title": "Import from Insomnia"
-      },
-      {
-        "command": "nemui.importPostman",
-        "title": "Import from Postman"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "nemui.sendRequest",
-        "key": "ctrl+enter",
-        "mac": "cmd+enter"
-      }
-    ],
-    "configuration": {
-      "title": "Nemui API Client",
-      "properties": {
-        "nemui.timeout": {
-          "type": "number",
-          "default": 30000,
-          "description": "Request timeout in milliseconds"
-        },
-        "nemui.followRedirects": {
-          "type": "boolean",
-          "default": true,
-          "description": "Follow HTTP redirects"
-        },
-        "nemui.verifySsl": {
-          "type": "boolean",
-          "default": true,
-          "description": "Verify SSL certificates"
-        }
-      }
-    }
-  },
   "scripts": {
-    "vscode:prepublish": "npm run compile && npm run build:webview",
-    "compile": "tsc -p ./",
-    "build:webview": "cd webview && npm install && npm run build",
-    "watch": "tsc -watch -p ./ && cd webview && npm run dev",
-    "dev": "code .",
-    "test": "node ./out/test/runTest.js",
-    "package": "vsce package"
-  },
-  "devDependencies": {
-    "@types/node": "^18.19.0",
-    "@types/vscode": "^1.85.0",
-    "@vscode/test-electron": "^2.3.8",
-    "typescript": "^5.3.3",
-    "vsce": "^2.15.0"
-  },
-  "dependencies": {
-    "axios": "^1.6.5"
+    "dev:standalone": "npm run dev -w @nemui/standalone",
+    "build:standalone": "npm run build -w @nemui/standalone",
+    "dev:vscode": "cd packages/vscode && npm run dev",
+    "build:vscode": "cd packages/vscode && npm run compile",
+    "package:vscode": "cd packages/vscode && npm run package",
+    "build": "npm run build:standalone && npm run build:vscode"
   }
 }
