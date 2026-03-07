@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { Environment, Environments } from '../types';
 
 const ENV_FILE = '.nemui/environments.json';
@@ -14,7 +15,14 @@ export class EnvironmentManager {
     }
 
     private async loadFromStorage() {
-        const workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        // Try to get workspace path
+        let workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        
+        // Fallback: use extension storage path
+        if (!workspacePath) {
+            workspacePath = path.join(__dirname, '..', '..', '.nemui');
+        }
+        
         if (!workspacePath) return;
 
         this.workspacePath = workspacePath;

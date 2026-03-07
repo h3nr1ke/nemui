@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { ApiCollection, ApiRequest } from '../types';
 
 export class CollectionsTreeProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
@@ -14,7 +15,14 @@ export class CollectionsTreeProvider implements vscode.TreeDataProvider<vscode.T
     }
 
     private async loadFromStorage() {
-        const workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        // Try to get workspace path
+        let workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        
+        // Fallback: try to get from extension storage path
+        if (!workspacePath) {
+            workspacePath = path.join(__dirname, '..', '..', '.nemui');
+        }
+        
         if (workspacePath) {
             this.storagePath = vscode.Uri.joinPath(
                 vscode.Uri.file(workspacePath),
