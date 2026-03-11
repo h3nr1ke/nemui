@@ -1,7 +1,9 @@
 import { useAppStore } from '../store';
 
 export function CollectionsPanel() {
-  const { collections, addCollection, setRequest } = useAppStore();
+  const { addCollection, setRequest, getFilteredCollections, activeProjectId } = useAppStore();
+
+  const collections = getFilteredCollections();
 
   const handleNewCollection = () => {
     const name = prompt('Collection name:');
@@ -9,6 +11,7 @@ export function CollectionsPanel() {
       addCollection({
         id: `col_${Date.now()}`,
         name,
+        projectId: activeProjectId || '',
         requests: [],
         folders: []
       });
@@ -75,7 +78,10 @@ export function CollectionsPanel() {
         ))}
         {collections.length === 0 && (
           <div style={{ padding: 20, textAlign: 'center', color: '#858585' }}>
-            No collections yet.<br />
+            {activeProjectId 
+              ? 'No collections in this project.'
+              : 'No collections yet.'}
+            <br />
             Click + to create one.
           </div>
         )}

@@ -6,6 +6,7 @@ import { RequestPanel } from './components/RequestPanel';
 import { ResponsePanel } from './components/ResponsePanel';
 import { CollectionsPanel } from './components/CollectionsPanel';
 import { EnvironmentsPanel } from './components/EnvironmentsPanel';
+import { ProjectSelector } from './components/ProjectSelector';
 
 const httpClient = createHttpClient(useAppStore.getState);
 
@@ -161,7 +162,10 @@ function App() {
       
       <main className="app-main">
         {showSidebar && (
-          <CollectionsPanel />
+          <div className="sidebar">
+            <ProjectSelector />
+            <CollectionsPanel />
+          </div>
         )}
         <RequestPanel />
         <ResponsePanel />

@@ -391,3 +391,172 @@ body {
   font-size: 48px;
   margin-bottom: 16px;
 }
+
+/* Project Selector */
+.project-selector {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.project-header h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.new-project-form {
+  padding: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.project-input {
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.project-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.project-form-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.create-btn {
+  flex: 1;
+  padding: 6px;
+  background: var(--accent-color);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.create-btn:hover {
+  opacity: 0.9;
+}
+
+.cancel-btn {
+  padding: 6px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.project-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.project-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.project-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.project-item.active {
+  background: var(--accent-color);
+  color: white;
+}
+
+.project-icon {
+  font-size: 14px;
+}
+
+.project-name {
+  flex: 1;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.project-item.active .project-count {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.delete-btn {
+  opacity: 0;
+  padding: 2px 6px;
+  background: var(--error-color);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.project-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.no-projects {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.active-project-info {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.active-project-info strong {
+  color: var(--accent-color);
+}
+
+/* Sidebar container */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+}

@@ -34,10 +34,19 @@ export interface AuthConfig {
     addTo?: 'header' | 'query';
 }
 
+// Project types
+export interface Project {
+    id: string;
+    name: string;
+    description?: string;
+    createdAt: number;
+}
+
 // Collection types
 export interface ApiCollection {
     id: string;
     name: string;
+    projectId: string;
     requests: ApiRequest[];
     folders: Folder[];
 }

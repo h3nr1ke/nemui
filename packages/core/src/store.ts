@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { ApiRequest, ApiResponse, Environment, NemuiConfig, Platform } from './types';
+import type { ApiRequest, ApiResponse, Environment, NemuiConfig, Platform, Project, ApiCollection } from './types';
 
 // Default request
 const defaultRequest: ApiRequest = {
@@ -40,7 +40,11 @@ interface AppState {
     isLoading: boolean;
     error: unknown;
     
-    // Collections
+    // Projects
+    projects: Project[];
+    activeProjectId: string | null;
+    
+    // Collections (filtered by active project)
     collections: ApiCollection[];
     
     // Environments
@@ -59,6 +63,13 @@ interface AppState {
     setLoading: (loading: boolean) => void;
     setError: (error: unknown) => void;
     updateRequest: (updates: Partial<ApiRequest>) => void;
+    
+    // Projects
+    setProjects: (projects: Project[]) => void;
+    addProject: (project: Project) => void;
+    updateProject: (project: Project) => void;
+    deleteProject: (id: string) => void;
+    setActiveProject: (id: string | null) => void;
     
     // Collections
     setCollections: (collections: ApiCollection[]) => void;
@@ -83,6 +94,7 @@ interface AppState {
     
     // Helpers
     resolveVariables: (text: string) => string;
+    getFilteredCollections: () => ApiCollection[];
 }
 
 export const useAppStore = create<AppState>()(
@@ -93,6 +105,8 @@ export const useAppStore = create<AppState>()(
             response: null,
             isLoading: false,
             error: null,
+            projects: [],
+            activeProjectId: null,
             collections: [],
             environments: [],
             activeEnvironmentId: null,
@@ -112,6 +126,31 @@ export const useAppStore = create<AppState>()(
             updateRequest: (updates) => set((state) => ({
                 request: { ...state.request, ...updates }
             })),
+
+            // Projects actions
+            setProjects: (projects) => set({ projects }),
+            addProject: (project) => set((state) => ({
+                projects: [...state.projects, project]
+            })),
+            updateProject: (project) => set((state) => ({
+                projects: state.projects.map(p => 
+                    p.id === project.id ? project : p
+                )
+            })),
+            deleteProject: (id) => set((state) => {
+                // Also delete all collections in this project
+                const collections = state.collections.filter(c => c.projectId !== id);
+                return {
+                    projects: state.projects.filter(p => p.id !== id),
+                    activeProjectId: state.activeProjectId === id ? null : state.activeProjectId,
+                    collections
+                };
+            }),
+            setActiveProject: (id) => set({ 
+                activeProjectId: id,
+                // Clear request when switching projects
+                request: defaultRequest
+            }),
 
             // Collections actions
             setCollections: (collections) => set({ collections }),
@@ -183,11 +222,22 @@ export const useAppStore = create<AppState>()(
                 });
                 
                 return resolved;
+            },
+
+            // Get collections filtered by active project
+            getFilteredCollections: () => {
+                const state = get();
+                if (!state.activeProjectId) {
+                    return state.collections;
+                }
+                return state.collections.filter(c => c.projectId === state.activeProjectId);
             }
         }),
         {
             name: 'nemui-storage',
             partialize: (state) => ({
+                projects: state.projects,
+                activeProjectId: state.activeProjectId,
                 collections: state.collections,
                 environments: state.environments,
                 activeEnvironmentId: state.activeEnvironmentId,
