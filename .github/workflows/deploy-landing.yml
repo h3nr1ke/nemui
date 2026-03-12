@@ -7,9 +7,6 @@ on:
     paths:
       - 'packages/landing/**'
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 permissions:
   contents: read
   pages: write
@@ -22,6 +19,8 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     environment:
       name: github-pages
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
