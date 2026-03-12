@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pages: write
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
@@ -28,8 +29,16 @@ jobs:
           npm ci
           npm run build
 
+      - name: Verify build output
+        run: |
+          echo "Build output:"
+          ls -la packages/landing/dist/
+          echo "---"
+          cat packages/landing/dist/index.html | head -5
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: packages/landing/dist
+          force_orphan: true
