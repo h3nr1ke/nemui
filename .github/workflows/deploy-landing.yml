@@ -31,5 +31,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           folder: packages/landing/dist
-          branch: gh-pages
+          branch: main
           clean: true
