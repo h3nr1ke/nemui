@@ -12,9 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pages: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,16 +26,10 @@ jobs:
           npm ci
           npm run build
 
-      - name: Verify build output
-        run: |
-          echo "Build output:"
-          ls -la packages/landing/dist/
-          echo "---"
-          cat packages/landing/dist/index.html | head -5
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: packages/landing/dist
-          force_orphan: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          folder: packages/landing/dist
+          branch: gh-pages
+          clean: true
